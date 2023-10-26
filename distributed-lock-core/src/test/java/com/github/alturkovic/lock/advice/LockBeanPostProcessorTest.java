@@ -38,6 +38,7 @@ import com.github.alturkovic.lock.retry.DefaultRetryTemplateConverter;
 import com.github.alturkovic.lock.retry.RetriableLockFactory;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,7 +48,9 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 public class LockBeanPostProcessorTest {
@@ -151,6 +154,11 @@ public class LockBeanPostProcessorTest {
       .isInstanceOf(DistributedLockException.class);
   }
 
+  @Test
+  public void notThrowWhenNoTokenIsAcquiredAfterRetries() {
+    Assertions.assertDoesNotThrow(() -> lockedInterface.notThrow("!noToken"));
+  }
+
   private interface LockedInterface {
 
     @Locked(prefix = "lock:", expression = "#s", type = SimpleLock.class)
@@ -180,8 +188,11 @@ public class LockBeanPostProcessorTest {
     @SimpleLocked(refresh = @Interval("100"), expiration = @Interval("200"))
     void sleep() throws InterruptedException;
 
-    @SimpleLocked(expression = "#token")
+    @SimpleLocked(expression = "#token", logFailedLock = false)
     void noToken(String token);
+
+    @SimpleLocked(expression = "#token")
+    void notThrow(String token);
   }
 
   private class LockedInterfaceImpl implements LockedInterface {
@@ -234,6 +245,10 @@ public class LockBeanPostProcessorTest {
 
     @Override
     public void noToken(String token) {
+    }
+
+    @Override
+    public void notThrow(String token) {
     }
 
     public int getStaticValue() {

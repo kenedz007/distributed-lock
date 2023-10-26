@@ -90,4 +90,9 @@ public @interface Locked {
    * Lock type, see implementations of {@link Lock}.
    */
   Class<? extends Lock> type() default Lock.class;
+
+  /**
+   * Turn on logging of DistributedLockException instead of throwing it
+   */
+  boolean logFailedLock() default true;
 }

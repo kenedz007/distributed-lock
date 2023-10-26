@@ -314,6 +314,10 @@ You can also create an alias for your lock so you don't have to specify `@Locked
 
 Started tracking the changes since 1.2.0 so no changelogs available for earlier versions.
 
+==== 1.5.6
+
+- CHANGE: `@Locked` extended for `logFailedLock` field together with all annotations aliasing `@Locked`.
+
 ==== 1.5.5
 
 - BUGFIX: Add initial refresh delay to avoid calling `refresh` immediately
